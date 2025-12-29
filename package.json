@@ -1,0 +1,27 @@
+{
+  "name": "obsidian-ai-summary",
+  "version": "0.1.0",
+  "description": "AI-powered note summarization plugin for Obsidian",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc --noEmit && node esbuild.config.mjs production"
+  },
+  "keywords": [
+    "obsidian",
+    "obsidian-plugin",
+    "ai",
+    "summary",
+    "claude",
+    "gpt"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "esbuild": "^0.27.2",
+    "obsidian": "^1.11.0",
+    "typescript": "^5.9.3"
+  }
+}
