@@ -3,6 +3,7 @@ import { SummarySettings, SummaryOptions } from './types';
 import { DEFAULT_SETTINGS } from './constants';
 import { SummarizerFactory } from './services/summarizer';
 import { EditorService } from './services/editor-service';
+import { SummarySettingTab } from './ui/SettingTab';
 
 /**
  * AI Summary Plugin
@@ -24,6 +25,9 @@ export default class SummaryPlugin extends Plugin {
 
     // 설정 로드
     await this.loadSettings();
+
+    // 설정 탭 추가
+    this.addSettingTab(new SummarySettingTab(this.app, this));
 
     // 리본 아이콘 추가
     this.addRibbonIcon('sparkles', 'Summarize note', async () => {

@@ -4,7 +4,7 @@ AI 기반 노트 자동 요약 플러그인입니다. Claude 또는 OpenAI API�
 
 ## 🚧 개발 중 (v0.1.0)
 
-이 플러그인은 현재 개발 중입니다. Day 3 Claude API 통합이 완료되었습니다.
+이 플러그인은 현재 개발 중입니다. **Day 5 에디터 통합이 완료되어 실제로 사용 가능합니다!** 🎉
 
 ### ✅ 완료된 작업
 - [x] 프로젝트 구조 설정 (Day 1)
@@ -12,17 +12,21 @@ AI 기반 노트 자동 요약 플러그인입니다. Claude 또는 OpenAI API�
 - [x] 기본 Plugin 클래스 구현 (Day 1)
 - [x] 타입 정의 및 상수 (Day 1)
 - [x] Git 저장소 초기화 (Day 1)
-- [x] **Claude API 통합 (Day 3)** ✨
+- [x] Claude API 통합 (Day 3)
   - API Error Handler 구현
   - Claude Provider (timeout, retry, 프롬프트 엔지니어링)
   - Summarizer Service 팩토리 패턴
   - 노트 내용 추출 및 API 호출
-  - 요약 결과 콘솔 출력
+- [x] **에디터 통합 및 요약 삽입 (Day 5)** 🎉
+  - VersionManager (타임스탬프, 히스토리 관리)
+  - EditorService (Summary 섹션 찾기/삽입/업데이트)
+  - 버전 관리 (<details> 접기 섹션)
+  - 노트에 직접 삽입 기능
 
 ### 🔜 예정된 작업
-- [ ] 에디터 통합 및 요약 삽입 (Day 5-7)
-- [ ] UI 구현 (리본, 커맨드, 설정) (Day 8-12)
+- [ ] UI 구현 (설정 탭) (Day 11-12)
 - [ ] 테스트 및 버그 수정 (Day 13-14)
+- [ ] Phase 2: OpenAI 지원, 다국어 등
 
 ## 📦 개발 환경 설정
 
@@ -51,10 +55,12 @@ obsidian-ai-summary/
 │   ├── types.ts                     # 타입 정의
 │   ├── constants.ts                 # 상수
 │   └── services/
-│       ├── api-error-handler.ts     # API 에러 처리 ✨
-│       ├── claude-provider.ts       # Claude API 구현 ✨
-│       └── summarizer.ts            # Summarizer 팩토리 ✨
-├── main.js                          # 빌드 결과 (8.3KB)
+│       ├── api-error-handler.ts     # API 에러 처리
+│       ├── claude-provider.ts       # Claude API 구현
+│       ├── summarizer.ts            # Summarizer 팩토리
+│       ├── editor-service.ts        # 에디터 조작 🎉
+│       └── version-manager.ts       # 버전 관리 🎉
+├── main.js                          # 빌드 결과 (10KB)
 ├── manifest.json                    # 플러그인 메타데이터
 ├── package.json
 ├── tsconfig.json
