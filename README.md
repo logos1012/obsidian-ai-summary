@@ -4,17 +4,22 @@ AI 기반 노트 자동 요약 플러그인입니다. Claude 또는 OpenAI API�
 
 ## 🚧 개발 중 (v0.1.0)
 
-이 플러그인은 현재 개발 중입니다. Day 1 프로젝트 설정이 완료되었습니다.
+이 플러그인은 현재 개발 중입니다. Day 3 Claude API 통합이 완료되었습니다.
 
 ### ✅ 완료된 작업
-- [x] 프로젝트 구조 설정
-- [x] TypeScript 및 빌드 설정
-- [x] 기본 Plugin 클래스 구현
-- [x] 타입 정의 및 상수
-- [x] Git 저장소 초기화
+- [x] 프로젝트 구조 설정 (Day 1)
+- [x] TypeScript 및 빌드 설정 (Day 1)
+- [x] 기본 Plugin 클래스 구현 (Day 1)
+- [x] 타입 정의 및 상수 (Day 1)
+- [x] Git 저장소 초기화 (Day 1)
+- [x] **Claude API 통합 (Day 3)** ✨
+  - API Error Handler 구현
+  - Claude Provider (timeout, retry, 프롬프트 엔지니어링)
+  - Summarizer Service 팩토리 패턴
+  - 노트 내용 추출 및 API 호출
+  - 요약 결과 콘솔 출력
 
 ### 🔜 예정된 작업
-- [ ] Claude API 통합 (Day 3-4)
 - [ ] 에디터 통합 및 요약 삽입 (Day 5-7)
 - [ ] UI 구현 (리본, 커맨드, 설정) (Day 8-12)
 - [ ] 테스트 및 버그 수정 (Day 13-14)
@@ -42,12 +47,15 @@ npm run build
 ```
 obsidian-ai-summary/
 ├── src/
-│   ├── main.ts              # 플러그인 진입점
-│   ├── types.ts             # 타입 정의
-│   ├── constants.ts         # 상수
-│   └── services/            # 서비스 모듈 (예정)
-├── main.js                  # 빌드 결과
-├── manifest.json            # 플러그인 메타데이터
+│   ├── main.ts                      # 플러그인 진입점
+│   ├── types.ts                     # 타입 정의
+│   ├── constants.ts                 # 상수
+│   └── services/
+│       ├── api-error-handler.ts     # API 에러 처리 ✨
+│       ├── claude-provider.ts       # Claude API 구현 ✨
+│       └── summarizer.ts            # Summarizer 팩토리 ✨
+├── main.js                          # 빌드 결과 (8.3KB)
+├── manifest.json                    # 플러그인 메타데이터
 ├── package.json
 ├── tsconfig.json
 └── esbuild.config.mjs
@@ -61,6 +69,22 @@ obsidian-ai-summary/
 4. **직관적 UI**: 리본 아이콘 및 커맨드 팔레트
 
 ## 📝 개발 로그
+
+### Day 3 (2025-12-29) ✨
+- **Claude API 완전 통합!**
+- API Error Handler: HTTP 상태 코드별 친절한 에러 메시지
+- Claude Provider 구현:
+  - 한글/영어 자동 감지 프롬프트
+  - 길이별 max_tokens 조절 (short: 512, standard: 1024, detailed: 2048)
+  - AbortController 기반 30초 timeout
+  - 네트워크 에러 시 1회 자동 재시도
+- Summarizer Service: Factory 패턴으로 provider 관리
+- Main Plugin 통합:
+  - 노트 내용 추출 (frontmatter 제거)
+  - API 호출 및 요약 생성
+  - 콘솔 출력 (에디터 삽입은 Day 5-7)
+- 빌드 크기: 1.9KB → 8.3KB
+- **현재 상태**: API 키만 설정하면 실제 요약 생성 가능! 🎉
 
 ### Day 1 (2025-12-29)
 - 프로젝트 초기 설정 완료
