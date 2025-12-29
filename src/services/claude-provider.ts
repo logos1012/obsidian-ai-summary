@@ -1,3 +1,4 @@
+import { requestUrl } from 'obsidian';
 import { ISummaryProvider, SummaryOptions } from '../types';
 import { CLAUDE_API_URL, API_TIMEOUT } from '../constants';
 import { APIErrorHandler } from './api-error-handler';
@@ -37,6 +38,17 @@ export class ClaudeSummaryProvider implements ISummaryProvider {
     if (!options.apiKey || options.apiKey.trim() === '') {
       throw new Error('API 키가 설정되지 않았습니다');
     }
+
+    // API 키 형식 검증
+    if (!options.apiKey.startsWith('sk-ant-')) {
+      console.warn('⚠️ API 키 형식이 올바르지 않을 수 있습니다. Anthropic API 키는 "sk-ant-"로 시작해야 합니다.');
+    }
+
+    console.log('🔑 API 요청 준비:', {
+      model: options.model,
+      length: options.length,
+      apiKeyPrefix: options.apiKey.substring(0, 10) + '...'
+    });
 
     // 프롬프트 생성
     const prompt = this.buildPrompt(content, options.length);
@@ -117,81 +129,98 @@ ${content}`;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
-        // AbortController로 timeout 구현
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+        console.log(`🌐 API 요청 시도 ${attempt + 1}/${maxRetries + 1}`, {
+          url: CLAUDE_API_URL,
+          model: options.model
+        });
 
-        try {
-          const response = await fetch(CLAUDE_API_URL, {
-            method: 'POST',
-            headers: {
-              'anthropic-version': '2023-06-01',
-              'x-api-key': options.apiKey,
-              'content-type': 'application/json'
-            },
-            body: JSON.stringify({
-              model: options.model,
-              max_tokens: this.getMaxTokens(options.length),
-              messages: [
-                {
-                  role: 'user',
-                  content: prompt
-                }
-              ]
-            }),
-            signal: controller.signal
+        // Obsidian의 requestUrl 사용
+        const response = await requestUrl({
+          url: CLAUDE_API_URL,
+          method: 'POST',
+          headers: {
+            'anthropic-version': '2023-06-01',
+            'x-api-key': options.apiKey,
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: options.model,
+            max_tokens: this.getMaxTokens(options.length),
+            messages: [
+              {
+                role: 'user',
+                content: prompt
+              }
+            ]
+          }),
+          throw: false  // 에러를 자동으로 throw하지 않음
+        });
+
+        console.log(`📡 API 응답 상태: ${response.status}`);
+
+        // HTTP 에러 처리
+        if (response.status >= 400) {
+          console.error('❌ API 에러 응답:', {
+            status: response.status,
+            headers: response.headers,
+            body: response.json
           });
 
-          clearTimeout(timeoutId);
-
-          // HTTP 에러 처리
-          if (!response.ok) {
-            const errorMessage = await APIErrorHandler.handleHTTPError(response);
-            throw new Error(errorMessage);
+          // 에러 메시지 상세 출력
+          if (response.json && typeof response.json === 'object') {
+            console.error('❌ 에러 상세:', JSON.stringify(response.json, null, 2));
           }
 
-          // 응답 파싱
-          const data = (await response.json()) as ClaudeResponse;
-
-          // 응답 검증
-          if (!data.content || data.content.length === 0) {
-            throw new Error('AI 응답이 비어있습니다');
+          // 404 에러 특별 처리
+          if (response.status === 404) {
+            const errorDetail = response.json as any;
+            if (errorDetail?.error?.message) {
+              throw new Error(`API 404 에러: ${errorDetail.error.message}`);
+            } else {
+              throw new Error('API 404 에러: 엔드포인트를 찾을 수 없습니다. API 키가 유효한지 확인해주세요.');
+            }
           }
 
-          const summary = data.content[0].text.trim();
+          // Response 객체 모킹 (APIErrorHandler 호환성)
+          const mockResponse = {
+            ok: false,
+            status: response.status,
+            statusText: '',
+            text: async () => JSON.stringify(response.json)
+          } as Response;
 
-          // 토큰 사용량 로그 (디버깅용)
-          console.log('Claude API usage:', {
-            input_tokens: data.usage.input_tokens,
-            output_tokens: data.usage.output_tokens,
-            model: data.model
-          });
-
-          return summary;
-
-        } finally {
-          clearTimeout(timeoutId);
+          const errorMessage = await APIErrorHandler.handleHTTPError(mockResponse);
+          throw new Error(errorMessage);
         }
+
+        // 응답 파싱
+        const data = response.json as ClaudeResponse;
+
+        // 응답 검증
+        if (!data.content || data.content.length === 0) {
+          throw new Error('AI 응답이 비어있습니다');
+        }
+
+        const summary = data.content[0].text.trim();
+
+        // 토큰 사용량 로그 (디버깅용)
+        console.log('Claude API usage:', {
+          input_tokens: data.usage.input_tokens,
+          output_tokens: data.usage.output_tokens,
+          model: data.model
+        });
+
+        return summary;
 
       } catch (error) {
         lastError = error as Error;
 
-        // Abort 에러 (timeout)
-        if (error instanceof Error && error.name === 'AbortError') {
-          const timeoutError = new Error('요청 시간 초과');
-          lastError = timeoutError;
-
-          // 마지막 시도가 아니면 재시도
-          if (attempt < maxRetries) {
-            console.log(`Timeout occurred, retrying (${attempt + 1}/${maxRetries})...`);
-            await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
-            continue;
-          }
-        }
-
         // 네트워크 에러
-        if (error instanceof TypeError && error.message.includes('fetch')) {
-          lastError = new Error(APIErrorHandler.handleNetworkError(error));
+        if (error instanceof Error &&
+            (error.message.includes('network') ||
+             error.message.includes('ENOTFOUND') ||
+             error.message.includes('ECONNREFUSED'))) {
+          lastError = new Error('인터넷 연결을 확인해주세요. API 서버에 접속할 수 없습니다.');
         }
 
         // 마지막 시도가 아니고 재시도 가능한 에러면 재시도

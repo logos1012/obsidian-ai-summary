@@ -1,6 +1,6 @@
 import { Plugin, Notice, MarkdownView } from 'obsidian';
 import { SummarySettings, SummaryOptions } from './types';
-import { DEFAULT_SETTINGS } from './constants';
+import { DEFAULT_SETTINGS, MAX_NOTE_LENGTH } from './constants';
 import { SummarizerFactory } from './services/summarizer';
 import { EditorService } from './services/editor-service';
 import { SummarySettingTab } from './ui/SettingTab';
@@ -93,6 +93,24 @@ export default class SummaryPlugin extends Plugin {
     try {
       // 3. 노트 내용 추출 (EditorService 사용)
       const content = this.editorService.extractContent(editor.getValue());
+
+      // 3-1. 빈 노트 검증
+      if (!content || content.trim().length === 0) {
+        new Notice('⚠️ 노트에 내용이 없습니다. 요약할 내용을 작성해주세요.');
+        return;
+      }
+
+      // 3-2. 최소 길이 체크 (너무 짧은 노트는 요약 불필요)
+      if (content.trim().length < 50) {
+        new Notice('⚠️ 노트가 너무 짧습니다. 최소 50자 이상의 내용이 필요합니다.');
+        return;
+      }
+
+      // 3-3. 최대 길이 체크 (토큰 제한)
+      if (content.length > MAX_NOTE_LENGTH) {
+        new Notice(`⚠️ 노트가 너무 깁니다 (${content.length.toLocaleString()}자). 최대 ${MAX_NOTE_LENGTH.toLocaleString()}자까지 지원됩니다.`);
+        return;
+      }
 
       // 4. 요약 생성 시작 알림
       new Notice('요약 생성 중... ⏳');

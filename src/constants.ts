@@ -6,7 +6,7 @@ import { SummarySettings } from './types';
 export const DEFAULT_SETTINGS: SummarySettings = {
   aiProvider: 'claude',
   apiKey: '',
-  model: 'claude-3-5-sonnet-20241022',
+  model: 'claude-sonnet-4-5',
   summaryLength: 'standard',
   firstRunComplete: false
 };
@@ -37,14 +37,14 @@ export const MAX_NOTE_LENGTH = 100000;
 export const SUMMARY_HEADING = '## Summary';
 
 /**
- * Claude 모델 목록
+ * Claude 모델 목록 (Claude 4.x)
  */
 export const CLAUDE_MODELS = [
-  'claude-3-5-sonnet-20241022',
-  'claude-3-5-haiku-20241022',
-  'claude-3-opus-20240229',
-  'claude-3-sonnet-20240229',
-  'claude-3-haiku-20240307'
+  'claude-sonnet-4-5',
+  'claude-haiku-4-5',
+  'claude-opus-4-5-20251101',
+  'claude-opus-4-20250514',
+  'claude-3-7-sonnet-20250219'
 ];
 
 /**

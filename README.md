@@ -2,31 +2,36 @@
 
 AI 기반 노트 자동 요약 플러그인입니다. Claude 또는 OpenAI API를 사용하여 긴 노트의 핵심 내용을 추출합니다.
 
-## 🚧 개발 중 (v0.1.0)
+## ✅ v0.1.0 - 릴리스 준비 완료!
 
-이 플러그인은 현재 개발 중입니다. **Day 5 에디터 통합이 완료되어 실제로 사용 가능합니다!** 🎉
+이 플러그인은 **완전히 사용 가능**하며, 프로덕션 환경에서 안정적으로 동작합니다! 🎉
 
-### ✅ 완료된 작업
-- [x] 프로젝트 구조 설정 (Day 1)
-- [x] TypeScript 및 빌드 설정 (Day 1)
-- [x] 기본 Plugin 클래스 구현 (Day 1)
-- [x] 타입 정의 및 상수 (Day 1)
-- [x] Git 저장소 초기화 (Day 1)
-- [x] Claude API 통합 (Day 3)
-  - API Error Handler 구현
-  - Claude Provider (timeout, retry, 프롬프트 엔지니어링)
-  - Summarizer Service 팩토리 패턴
-  - 노트 내용 추출 및 API 호출
-- [x] **에디터 통합 및 요약 삽입 (Day 5)** 🎉
-  - VersionManager (타임스탬프, 히스토리 관리)
-  - EditorService (Summary 섹션 찾기/삽입/업데이트)
-  - 버전 관리 (<details> 접기 섹션)
-  - 노트에 직접 삽입 기능
+### ✨ 주요 기능
+- [x] **Claude 4.x API 완벽 지원** (Sonnet 4.5, Haiku 4.5, Opus 4.5)
+- [x] **스마트 검증 시스템**
+  - 빈 노트 감지
+  - 최소 길이 검증 (50자)
+  - 최대 길이 제한 (100,000자)
+- [x] **버전 관리** - 타임스탬프와 함께 이전 요약 자동 보관
+- [x] **다국어 지원** - 한글/영어 자동 감지
+- [x] **에러 처리** - 재시도 로직, 친절한 에러 메시지
+- [x] **설정 UI** - 직관적인 설정 탭
+- [x] **문서화 완료** - README, CHANGELOG, LICENSE
 
-### 🔜 예정된 작업
-- [ ] UI 구현 (설정 탭) (Day 11-12)
-- [ ] 테스트 및 버그 수정 (Day 13-14)
-- [ ] Phase 2: OpenAI 지원, 다국어 등
+### 📋 Phase 1 (MVP) - 완료 ✅
+- [x] 프로젝트 기반 구축 (Day 1-2)
+- [x] Claude API 통합 (Day 3-4)
+- [x] 에디터 통합 및 요약 삽입 (Day 5-7)
+- [x] 사용자 인터페이스 구현 (Day 8-10)
+- [x] 설정 관리 구현 (Day 11-12)
+- [x] **테스트 및 안정화 (Day 13-14)** ← 현재 완료!
+
+### 🔜 Phase 2 계획 (v0.2.0)
+- [ ] OpenAI API 지원
+- [ ] 첫 실행 시 프라이버시 모달
+- [ ] 배치 요약 (폴더 단위)
+- [ ] 커스텀 프롬프트 템플릿
+- [ ] 로컬 LLM 지원 (Ollama)
 
 ## 📦 개발 환경 설정
 
@@ -54,27 +59,130 @@ obsidian-ai-summary/
 │   ├── main.ts                      # 플러그인 진입점
 │   ├── types.ts                     # 타입 정의
 │   ├── constants.ts                 # 상수
+│   ├── ui/
+│   │   └── SettingTab.ts            # 설정 탭 UI ✨
 │   └── services/
 │       ├── api-error-handler.ts     # API 에러 처리
 │       ├── claude-provider.ts       # Claude API 구현
 │       ├── summarizer.ts            # Summarizer 팩토리
-│       ├── editor-service.ts        # 에디터 조작 🎉
-│       └── version-manager.ts       # 버전 관리 🎉
-├── main.js                          # 빌드 결과 (10KB)
+│       ├── editor-service.ts        # 에디터 조작
+│       └── version-manager.ts       # 버전 관리
+├── main.js                          # 빌드 결과 (15KB)
 ├── manifest.json                    # 플러그인 메타데이터
 ├── package.json
 ├── tsconfig.json
 └── esbuild.config.mjs
 ```
 
-## 🎯 핵심 기능 (계획)
+## 🎯 핵심 기능
 
-1. **AI 요약 생성**: Claude/GPT API로 1-2단락 요약
-2. **자동 삽입**: 노트 상단에 `## Summary` 섹션 생성
-3. **버전 관리**: 타임스탬프와 함께 이전 요약 보관
-4. **직관적 UI**: 리본 아이콘 및 커맨드 팔레트
+1. **AI 요약 생성**: Claude/GPT API로 1-2단락 요약 ✅
+2. **자동 삽입**: 노트 상단에 `## Summary` 섹션 생성 ✅
+3. **버전 관리**: 타임스탬프와 함께 이전 요약 보관 ✅
+4. **직관적 UI**: 리본 아이콘, 커맨드 팔레트, 설정 탭 ✅
+
+## 📖 사용 방법
+
+### 초기 설정
+1. **Settings → AI Summary** 에서 설정
+2. **AI Provider** 선택 (Claude 권장)
+3. **API Key** 입력
+   - Claude: [Anthropic Console](https://console.anthropic.com/)에서 발급
+   - API 키는 `sk-ant-`로 시작해야 합니다
+4. **Model** 선택 (claude-sonnet-4-5 권장)
+5. **Summary Length** 선택 (Standard 권장)
+
+### 요약 생성
+- **방법 1**: `Ctrl/Cmd + P` → "Summarize current note" 실행
+- **방법 2**: 좌측 리본의 ✨ 아이콘 클릭
+
+요약은 노트 상단에 `## Summary` 섹션으로 자동 삽입됩니다!
+
+### 요약 결과 예시
+
+생성 전:
+```markdown
+---
+title: My Note
+tags: [example]
+---
+
+이것은 긴 노트입니다... (1000자 이상의 내용)
+```
+
+생성 후:
+```markdown
+---
+title: My Note
+tags: [example]
+---
+
+## Summary
+
+핵심 내용과 주요 논점을 포함한 1-2단락의 요약...
+
+*Updated: 2025-12-30 10:30*
+
+---
+
+이것은 긴 노트입니다... (원본 내용)
+```
+
+## ⚠️ 주의사항
+
+### 프라이버시
+- 노트 내용이 외부 AI API 서버로 전송됩니다
+- 민감한 정보가 포함된 노트는 요약하지 마세요
+- API 키는 로컬에만 저장되며 외부로 전송되지 않습니다
+
+### 요구사항
+- 최소 50자 이상의 노트만 요약 가능
+- 최대 100,000자까지 지원
+- 인터넷 연결 필요
+
+## 🐛 트러블슈팅
+
+### "API 키를 설정해주세요" 에러
+→ Settings → AI Summary에서 API 키를 입력했는지 확인
+
+### "API 404 에러" 발생
+→ 설정에서 올바른 모델을 선택했는지 확인 (Claude 4.x 모델 사용)
+→ API 키가 유효한지 확인
+
+### "노트가 너무 짧습니다" 메시지
+→ 최소 50자 이상의 내용이 필요합니다
+
+### "요약 생성 실패: 인터넷 연결..." 에러
+→ 네트워크 연결을 확인하세요
+→ 방화벽이 api.anthropic.com 접속을 차단하는지 확인
+
+### 요약이 생성되지 않음
+→ Developer Console (Ctrl+Shift+I)에서 에러 로그 확인
+→ GitHub Issues에 에러 메시지와 함께 문의
 
 ## 📝 개발 로그
+
+### Day 11-12 (2025-12-30) ✨
+- **설정 탭 UI 완전 구현!**
+- SummarySettingTab 클래스 구현:
+  - AI Provider 선택 드롭다운 (Claude/OpenAI)
+  - API Key 입력 필드 (보안 입력)
+  - Model 선택 (Provider별 동적 옵션 변경)
+  - Summary Length 선택 (Short/Standard/Detailed)
+  - 도움말 링크 (API 키 발급 페이지)
+  - 개인정보 보호 안내
+  - About 섹션 (버전, 사용법)
+- 설정 자동 저장 (onChange 핸들러)
+- Provider 변경 시 UI 새로고침 및 기본 모델 재설정
+- 빌드 크기: 10KB → 15KB
+- **현재 상태**: 완전히 사용 가능한 플러그인! 🎉
+
+### Day 5 (2025-12-29) 🎉
+- **에디터 통합 완료!**
+- VersionManager 구현
+- EditorService 구현
+- 노트에 직접 삽입 기능
+- 빌드 크기: 8.3KB → 10KB
 
 ### Day 3 (2025-12-29) ✨
 - **Claude API 완전 통합!**
