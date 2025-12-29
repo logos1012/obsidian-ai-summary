@@ -2,6 +2,7 @@ import { Plugin, Notice, MarkdownView } from 'obsidian';
 import { SummarySettings, SummaryOptions } from './types';
 import { DEFAULT_SETTINGS } from './constants';
 import { SummarizerFactory } from './services/summarizer';
+import { EditorService } from './services/editor-service';
 
 /**
  * AI Summary Plugin
@@ -10,12 +11,16 @@ import { SummarizerFactory } from './services/summarizer';
  */
 export default class SummaryPlugin extends Plugin {
   settings!: SummarySettings;
+  private editorService!: EditorService;
 
   /**
    * 플러그인 로드 시 호출됩니다
    */
   async onload() {
     console.log('Loading AI Summary Plugin...');
+
+    // EditorService 초기화
+    this.editorService = new EditorService();
 
     // 설정 로드
     await this.loadSettings();
@@ -82,8 +87,8 @@ export default class SummaryPlugin extends Plugin {
     }
 
     try {
-      // 3. 노트 내용 추출
-      const content = this.extractContent(editor.getValue());
+      // 3. 노트 내용 추출 (EditorService 사용)
+      const content = this.editorService.extractContent(editor.getValue());
 
       // 4. 요약 생성 시작 알림
       new Notice('요약 생성 중... ⏳');
@@ -101,14 +106,12 @@ export default class SummaryPlugin extends Plugin {
       // 7. 요약 실행
       const summary = await summarizer.summarize(content, options);
 
-      // 8. 성공 알림 및 결과 출력
-      new Notice('요약이 생성되었습니다 ✅');
-      console.log('=== Summary Result ===');
-      console.log(summary);
-      console.log('=====================');
+      // 8. 요약을 노트에 삽입/업데이트
+      this.editorService.insertOrUpdateSummary(editor, summary);
 
-      // TODO: Day 5-7에서 요약을 노트에 삽입하는 기능 구현
-      new Notice('💡 요약이 콘솔에 출력되었습니다. 개발자 도구를 확인하세요.');
+      // 9. 성공 알림
+      new Notice('요약이 노트에 추가되었습니다 ✅');
+      console.log('Summary inserted successfully');
 
     } catch (error) {
       console.error('Summary error:', error);
@@ -117,14 +120,4 @@ export default class SummaryPlugin extends Plugin {
     }
   }
 
-  /**
-   * 노트 내용에서 frontmatter를 제거합니다
-   * @param fullContent 전체 노트 내용
-   * @returns frontmatter가 제거된 내용
-   */
-  private extractContent(fullContent: string): string {
-    // YAML frontmatter 제거 (---로 시작하고 끝나는 부분)
-    const withoutFrontmatter = fullContent.replace(/^---\n[\s\S]*?\n---\n/, '');
-    return withoutFrontmatter.trim();
-  }
 }
