@@ -130,6 +130,8 @@ ${summary}
 
 *Updated: ${timestamp}*
 
+---
+
 `;
 
     editor.replaceRange(summaryBlock, insertPos);
@@ -170,6 +172,8 @@ ${summary}
 ${newSummary}
 
 *Updated: ${newTimestamp}*
+
+---
 
 ${updatedHistory}
 `;
